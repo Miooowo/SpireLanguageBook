@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>杀戮尖塔卡牌描述规范与指南</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/guide.css">
+</head>
+<body>
+  <div class="guide-layout">
+    <aside class="guide-sidebar">
+      <div class="sidebar-brand">
+        <h1>杀戮尖塔<br>卡牌描述规范与指南</h1>
+        <p>玩家描述撰写指南</p>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li><a href="#sec-01">01. 普适原则</a></li>
+          <li><a href="#sec-02">02. 文件结构</a></li>
+          <li><a href="#sec-03">03. 标记语法</a></li>
+          <li><a href="#sec-04">04. 颜色标签</a></li>
+          <li><a href="#sec-05">05. 变量修饰符</a></li>
+          <li><a href="#sec-06">06. 标点与换行</a></li>
+          <li><a href="#sec-07">07. 术语统一</a></li>
+          <li><a href="#sec-08">08. 卡牌描述</a></li>
+          <li><a href="#sec-09">09. 遗物与能力</a></li>
+          <li><a href="#sec-10">10. 事件叙事</a></li>
+          <li><a href="#sec-11">11. 常见错误</a></li>
+          <li><a href="#sec-12">12. 相关工具</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-tools">
+        <a href="index.html">→ 官方范例库与语法检索</a>
+      </div>
+    </aside>
+
+    <main class="guide-main">
+      <header class="guide-intro">
+        <h1>杀戮尖塔卡牌描述规范与指南</h1>
+        <p>
+          为《杀戮尖塔 2》（STS2）中卡牌、遗物、能力、药水及事件等<strong>描述文本的撰写</strong>提供统一规范。
+          无论你是制作 Mod、设计自定义内容，还是想弄清官方文案怎么写——本文档都能作为参考。
+          描述须使用游戏规定的标记语法；在此基础上，用中文把效果写清楚即可。
+        </p>
+      </header>
+
+      <!-- 01 -->
+      <section class="guide-section" id="sec-01">
+        <h2><span class="sec-num">01.</span>普适原则</h2>
+        <ul>
+          <li><strong>机制优先，文字服从玩法。</strong>先确定这张牌/遗物实际做什么，再写描述；不得写出与代码逻辑不符的句子。</li>
+          <li><strong>清晰优先于文采。</strong>描述的首要目标是让玩家在战斗中一眼读懂效果；事件叙事可适当润色，但不可模糊机制含义。</li>
+          <li><strong>符合中文表达习惯。</strong>避免拖沓长句；效果较多时宜拆句，并用换行分隔。
+            <ul>
+              <li>欠佳：「获得 X 点格挡，然后升级你手牌中的一张牌。」</li>
+              <li>推荐：「获得 X 点[gold]格挡[/gold]。\n[gold]升级[/gold]你[gold]手牌[/gold]中的一张牌。」</li>
+            </ul>
+          </li>
+          <li><strong>语气与内容类型匹配。</strong>卡牌描述用简洁说明体；事件文本可更叙事化，但不要偏离机制表述。</li>
+          <li><strong>同类效果句式统一。</strong>伤害、格挡、抽牌、给予状态等常见模板，建议与官方范例保持一致（见第 08 节）。</li>
+        </ul>
+      </section>
+
+      <!-- 02 -->
+      <section class="guide-section" id="sec-02">
+        <h2><span class="sec-num">02.</span>描述数据文件结构</h2>
+        <p>游戏中的描述文本存放在 <code>zhs/</code> 目录下的 JSON 文件中（Mod 亦多采用相同格式），键名格式为 <code>实体ID.字段名</code>。</p>
+        <table class="guide-table">
+          <thead>
+            <tr><th>文件</th><th>常用字段</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>cards.json</code></td><td><code>title</code>、<code>description</code></td><td>卡牌名称与效果描述</td></tr>
+            <tr><td><code>relics.json</code></td><td><code>title</code>、<code>description</code>、<code>flavor</code>、<code>eventDescription</code></td><td>遗物效果、风味、事件内描述</td></tr>
+            <tr><td><code>powers.json</code></td><td><code>title</code>、<code>description</code>、<code>smartDescription</code></td><td>战斗内能力；smart 为带数值的动态版</td></tr>
+            <tr><td><code>potions.json</code></td><td><code>title</code>、<code>description</code></td><td>药水效果</td></tr>
+            <tr><td><code>card_keywords.json</code></td><td><code>title</code>、<code>description</code></td><td>虚无、消耗、固有等关键词释义</td></tr>
+            <tr><td><code>enchantments.json</code></td><td><code>description</code>、<code>extraCardText</code></td><td>附魔说明与卡牌上的简短附加行</td></tr>
+            <tr><td><code>events.json</code></td><td><code>pages.*.description</code>、<code>options.*</code></td><td>事件叙事与选项文本</td></tr>
+            <tr><td><code>static_hover_tips.json</code></td><td><code>title</code>、<code>description</code></td><td>界面悬停提示</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          撰写时只修改字符串<strong>值</strong>（即描述正文），不要改动 JSON 键名。键名与游戏内 ID 绑定，改动会导致加载失败。
+        </div>
+      </section>
+
+      <!-- 03 -->
+      <section class="guide-section" id="sec-03">
+        <h2><span class="sec-num">03.</span>标记语法（撰写时必须遵守）</h2>
+        <p>游戏使用一套富文本标记语言。撰写描述时须正确使用下列结构；<strong>你可以自由书写的是标签内的中文，以及标签之间的连接词句。</strong></p>
+
+        <h3>3.1 颜色与格式标签</h3>
+        <p>成对标签：<code>[标签名]文字[/标签名]</code>。可嵌套。</p>
+
+        <h3>3.2 变量占位符</h3>
+        <p>花括号块：<code>{变量名}</code> 或 <code>{变量名:修饰符}</code>。修饰符、冒号、括号均为语法的一部分。</p>
+
+        <h3>3.3 分支与条件</h3>
+        <p>竖线 <code>|</code> 分隔不同分支；常见于 <code>:show:</code>、<code>:cond:</code>、<code>:choose()</code> 等修饰符中。</p>
+
+        <div class="example-block">
+          <div class="example-label raw">标记文本（写入 JSON 的字符串）</div>
+          <div class="example-code" data-markup="获得{Block:diff()}点[gold]格挡[/gold]。&#10;[gold]升级[/gold]你[gold]手牌[/gold]中的{IfUpgraded:show:所有牌|一张牌}。"></div>
+          <div class="example-label good">游戏内预览</div>
+          <div class="example-preview" data-markup="获得{Block:diff()}点[gold]格挡[/gold]。&#10;[gold]升级[/gold]你[gold]手牌[/gold]中的{IfUpgraded:show:所有牌|一张牌}。"></div>
+        </div>
+
+        <div class="callout warn">
+          切勿将 <code>{Damage:diff()}</code> 预填为具体数字（如「造成 6 点伤害」）。数值由游戏运行时注入，预填会导致升级后不更新。
+        </div>
+      </section>
+
+      <!-- 04 -->
+      <section class="guide-section" id="sec-04">
+        <h2><span class="sec-num">04.</span>颜色与格式标签</h2>
+        <table class="guide-table">
+          <thead>
+            <tr><th>标签</th><th>用途</th><th>典型场景</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>[gold]</code></td><td>金色关键词</td><td>格挡、力量、牌堆名、机制动词（升级、消耗、生成）</td></tr>
+            <tr><td><code>[blue]</code></td><td>蓝色数值</td><td>遗物/药水中的固定数字，或包裹变量</td></tr>
+            <tr><td><code>[green]</code></td><td>绿色数值</td><td>生命回复、最大生命等增益数值</td></tr>
+            <tr><td><code>[red]</code></td><td>红色警告</td><td>伤害、诅咒、未公开内容占位</td></tr>
+            <tr><td><code>[purple]</code></td><td>紫色特殊</td><td>附魔名（锋利、墨影、迅捷等）</td></tr>
+            <tr><td><code>[orange]</code> <code>[aqua]</code></td><td>叙事强调</td><td>主要用于事件文本中的 NPC、地点</td></tr>
+            <tr><td><code>[sine]</code> <code>[jitter]</code> <code>[b]</code> <code>[rainbow]</code></td><td>动画/强调</td><td>事件叙事专用；卡牌描述中极少使用</td></tr>
+          </tbody>
+        </table>
+
+        <h3>4.1 [gold] 关键词</h3>
+        <p>凡游戏内已有的机制词、牌堆名、状态名，均用 <code>[gold]</code> 包裹，以便玩家点击关键词查看悬停说明。</p>
+        <div class="example-pair">
+          <div class="example-block">
+            <div class="example-label good">规范</div>
+            <div class="example-preview" data-markup="将你[gold]抽牌堆[/gold]中的所有[gold]稀有[/gold]牌放入你的[gold]手牌[/gold]。"></div>
+          </div>
+          <div class="example-block">
+            <div class="example-label bad">不规范</div>
+            <div class="example-preview">将你抽牌堆中的所有稀有牌放入你的手牌。</div>
+          </div>
+        </div>
+
+        <h3>4.2 [blue] 与动态数值的分工</h3>
+        <ul>
+          <li>卡牌描述中随升级变化的数字 → 使用 <code>{变量:diff()}</code>，一般<strong>不用</strong> <code>[blue]</code> 包裹。</li>
+          <li>遗物、药水等固定或引擎直接输出的数字 → 常用 <code>[blue]{变量}[/blue]</code>。</li>
+        </ul>
+        <div class="example-pair">
+          <div class="example-block">
+            <div class="example-label good">卡牌（diff）</div>
+            <div class="example-code" data-markup="造成{Damage:diff()}点伤害。"></div>
+            <div class="example-preview" data-markup="造成{Damage:diff()}点伤害。"></div>
+          </div>
+          <div class="example-block">
+            <div class="example-label good">遗物（blue）</div>
+            <div class="example-code" data-markup="每场战斗开始时获得[blue]{Block}[/blue]点[gold]格挡[/gold]。"></div>
+            <div class="example-preview" data-markup="每场战斗开始时获得[blue]{Block}[/blue]点[gold]格挡[/gold]。"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 -->
+      <section class="guide-section" id="sec-05">
+        <h2><span class="sec-num">05.</span>变量与修饰符</h2>
+        <table class="guide-table">
+          <thead>
+            <tr><th>修饰符</th><th>含义</th><th>撰写时注意</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>:diff()</code></td><td>动态数值（含升级差值着色）</td><td>保留修饰符；中文写在变量前后均可，但全库应统一</td></tr>
+            <tr><td><code>:energyIcons()</code></td><td>渲染为能量球图标</td><td>写作「获得{Energy:energyIcons()}」而非「获得 1 点能量」</td></tr>
+            <tr><td><code>:starIcons()</code></td><td>渲染为辉星 ★</td><td>储君机制专用</td></tr>
+            <tr><td><code>:show:A|B</code></td><td>升级与否显示不同文本</td><td>两个分支都要写全；竖线不可省略</td></tr>
+            <tr><td><code>:cond:A|B</code></td><td>条件分支</td><td>分支内可含嵌套标签与变量</td></tr>
+            <tr><td><code>:choose(Type):A|B</code></td><td>枚举分支</td><td><code>choose(...)</code> 内为程序枚举，保持原样</td></tr>
+            <tr><td><code>:plural:A|B</code></td><td>复数/量词分支</td><td>中文常两分支相同，但仍须保留结构</td></tr>
+            <tr><td><code>{InCombat:…|}</code></td><td>战斗中才显示的附加行</td><td>空分支 <code>|}</code> 表示非战斗时隐藏</td></tr>
+          </tbody>
+        </table>
+
+        <h3>5.1 能量与零费表述</h3>
+        <div class="example-block">
+          <div class="example-label good">规范</div>
+          <div class="example-code" data-markup="获得{Energy:energyIcons()}。&#10;将一张0{energyPrefix:energyIcons(1)}复制品加入你的[gold]弃牌堆[/gold]。"></div>
+          <div class="example-preview" data-markup="获得{Energy:energyIcons()}。&#10;将一张0{energyPrefix:energyIcons(1)}复制品加入你的[gold]弃牌堆[/gold]。"></div>
+        </div>
+        <p>「0 费」的 0 写在图标变量之前，不要改成「零费」或删除 <code>energyPrefix</code> 变量。</p>
+
+        <h3>5.2 升级分支示例</h3>
+        <div class="example-block">
+          <div class="example-label good">规范</div>
+          <div class="example-code" data-markup="[gold]升级[/gold]你[gold]手牌[/gold]中的{IfUpgraded:show:所有牌|一张牌}。"></div>
+          <div class="example-preview" data-markup="[gold]升级[/gold]你[gold]手牌[/gold]中的{IfUpgraded:show:所有牌|一张牌}。"></div>
+        </div>
+      </section>
+
+      <!-- 06 -->
+      <section class="guide-section" id="sec-06">
+        <h2><span class="sec-num">06.</span>标点符号与换行</h2>
+        <ul>
+          <li>中文描述使用<strong>中文全角标点</strong>：。，、；：？！</li>
+          <li>句末统一使用句号 <code>。</code>，即使是关键词释义（<code>card_keywords</code>）也应完整成句。</li>
+          <li>并列的独立效果之间使用<strong>换行</strong> <code>\n</code> 分隔，优于分号堆砌。
+            <ul>
+              <li>规范：「获得 {Block:diff()} 点[gold]格挡[/gold]。\n抽 2 张牌。」</li>
+            </ul>
+          </li>
+          <li>保留变量与标签紧邻的写法，标签两侧一般不需要额外空格。</li>
+          <li>变量名、修饰符使用半角英文字符，与程序绑定，不可改成中文。</li>
+        </ul>
+
+        <h3>6.1 量词</h3>
+        <p>遵循「数词 + 量词 + 名词」习惯，数词来自变量时放在变量之后：</p>
+        <ul>
+          <li><code>造成{Damage:diff()}点伤害</code></li>
+          <li><code>给予{VulnerablePower:diff()}层[gold]易伤[/gold]</code></li>
+          <li><code>抽{Cards:diff()}张牌</code></li>
+          <li><code>获得{Block:diff()}点[gold]格挡[/gold]</code></li>
+        </ul>
+      </section>
+
+      <!-- 07 -->
+      <section class="guide-section" id="sec-07">
+        <h2><span class="sec-num">07.</span>术语与关键词</h2>
+        <p>以下用词在官方描述中已固定；撰写新内容时请保持一致。不确定时，先在范例库中搜索同类条目。</p>
+        <table class="guide-table">
+          <thead>
+            <tr><th>机制</th><th>规范用词</th><th>标记</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Block</td><td>格挡</td><td>[gold]格挡[/gold]</td></tr>
+            <tr><td>Strength / Dexterity / Focus</td><td>力量 / 敏捷 / 集中</td><td>[gold]…[/gold]</td></tr>
+            <tr><td>Vulnerable / Weak / Frail</td><td>易伤 / 虚弱 / 脆弱</td><td>[gold]…[/gold]</td></tr>
+            <tr><td>Draw pile / Discard pile / Exhaust pile</td><td>抽牌堆 / 弃牌堆 / 消耗牌堆</td><td>[gold]…[/gold]</td></tr>
+            <tr><td>Hand / Deck</td><td>手牌 / 牌组</td><td>[gold]…[/gold]</td></tr>
+            <tr><td>Exhaust / Ethereal / Innate / Retain</td><td>消耗 / 虚无 / 固有 / 保留</td><td>见 card_keywords</td></tr>
+            <tr><td>Upgrade / Transform / Forge</td><td>升级 / 变化 / 铸造</td><td>[gold]…[/gold]</td></tr>
+            <tr><td>Channel / Evoke</td><td>生成 / 激发</td><td>充能球相关</td></tr>
+            <tr><td>Shiv</td><td>小刀</td><td>[gold]小刀[/gold]</td></tr>
+            <tr><td>Elite / Ancient</td><td>精英 / 先古</td><td>遗物稀有度语境</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          角色名、敌人名、遗物名以各 JSON 中 <code>title</code> 字段为准；描述中引用时与 title 用字完全一致。
+        </div>
+      </section>
+
+      <!-- 08 -->
+      <section class="guide-section" id="sec-08">
+        <h2><span class="sec-num">08.</span>卡牌描述句式规范</h2>
+        <p>推荐句式模板（{…} 表示变量块，可替换为实际变量名）：</p>
+        <table class="guide-table">
+          <thead>
+            <tr><th>效果类型</th><th>推荐句式</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>造成伤害</td><td><code>造成{Damage:diff()}点伤害。</code> / <code>对所有敌人造成{Damage:diff()}点伤害。</code></td></tr>
+            <tr><td>获得格挡</td><td><code>获得{Block:diff()}点[gold]格挡[/gold]。</code></td></tr>
+            <tr><td>抽牌</td><td><code>抽{Cards:diff()}张牌。</code></td></tr>
+            <tr><td>获得能量</td><td><code>获得{Energy:energyIcons()}。</code></td></tr>
+            <tr><td>给予状态</td><td><code>给予{VulnerablePower:diff()}层[gold]易伤[/gold]。</code></td></tr>
+            <tr><td>生成充能球</td><td><code>[gold]生成[/gold]1个[gold]闪电[/gold]充能球。</code></td></tr>
+            <tr><td>添加卡牌</td><td><code>将一张[gold]…[/gold]加入你的[gold]手牌[/gold]。</code></td></tr>
+            <tr><td>升级</td><td><code>[gold]升级[/gold]…</code>（动词加 gold，与名词区分）</td></tr>
+          </tbody>
+        </table>
+
+        <h3>8.1 多效果排序</h3>
+        <p>一张牌有多个效果时，描述中的书写顺序应<strong>与该牌的实际结算顺序一致</strong>：先结算的写在前，后结算的写在后；对应到卡牌上会呈现为<strong>从上至下</strong>阅读。</p>
+        <ul>
+          <li>这不是固定模板——不同卡牌结算顺序不同，须以该牌的实际逻辑为准。</li>
+          <li>撰写 Mod 卡牌时，先确认代码中的效果触发顺序，再按此顺序组织描述文本。</li>
+          <li>每个效果仍建议单独成句，用换行 <code>\n</code> 分隔，便于玩家逐项阅读。</li>
+        </ul>
+        <div class="callout">
+          不要套用「先伤害后格挡」之类的通用顺序；若结算顺序与描述顺序不一致，玩家按文本操作时会产生误解。
+        </div>
+
+        <div class="example-block">
+          <div class="example-label good">官方范例 · 痛击</div>
+          <div class="example-code" data-markup="造成{Damage:diff()}点伤害。&#10;给予{VulnerablePower:diff()}层[gold]易伤[/gold]。"></div>
+          <div class="example-preview" data-markup="造成{Damage:diff()}点伤害。&#10;给予{VulnerablePower:diff()}层[gold]易伤[/gold]。"></div>
+        </div>
+      </section>
+
+      <!-- 09 -->
+      <section class="guide-section" id="sec-09">
+        <h2><span class="sec-num">09.</span>遗物、能力与药水</h2>
+
+        <h3>9.1 遗物 description 与 flavor</h3>
+        <ul>
+          <li><code>description</code>：机制说明，句式与卡牌类似，常用 <code>[blue]{变量}[/blue]</code>。</li>
+          <li><code>flavor</code>：风味文本，可更文学化；未公开内容保持官方占位句式。</li>
+          <li><code>eventDescription</code>：事件选项中的简短效果，须与 <code>description</code> 语义一致。</li>
+        </ul>
+
+        <h3>9.2 能力 description 与 smartDescription</h3>
+        <ul>
+          <li><code>description</code>：通用说明，常不含具体层数。</li>
+          <li><code>smartDescription</code>：战斗内悬停时显示，含 <code>[blue]{Amount}[/blue]</code> 等动态数。</li>
+          <li>两者机制措辞须一致，仅数值详略不同。</li>
+        </ul>
+        <div class="example-pair">
+          <div class="example-block">
+            <div class="example-label">description</div>
+            <div class="example-preview" data-markup="你每打出一张牌，都获得[blue]1[/blue]点[gold]格挡[/gold]。"></div>
+          </div>
+          <div class="example-block">
+            <div class="example-label">smartDescription</div>
+            <div class="example-preview" data-markup="你每打出一张牌，都获得[blue]{Amount}[/blue]点[gold]格挡[/gold]。"></div>
+          </div>
+        </div>
+
+        <h3>9.3 药水</h3>
+        <p>多为一次性效果，描述简短，常用 <code>[blue]{变量}[/blue]</code> + <code>[gold]关键词[/gold]</code>。消耗类药水须写清目标（如「所有敌人」）。</p>
+      </section>
+
+      <!-- 10 -->
+      <section class="guide-section" id="sec-10">
+        <h2><span class="sec-num">10.</span>事件与叙事文本</h2>
+        <ul>
+          <li>事件正文可使用 <code>[sine]</code>、<code>[jitter]</code>、<code>[rainbow]</code> 等动画标签；卡牌描述中不要滥用。</li>
+          <li>选项 <code>options.*.description</code> 写机制后果，宜短；页面 <code>pages.*.description</code> 写叙事，可长。</li>
+          <li>选项描述中的数值效果仍须遵循第 04–06 节标记规范。</li>
+          <li><code>loss</code> 字段为死亡叙事，可含 <code>{character}</code>、<code>{event}</code> 等变量，变量名不可改动。</li>
+        </ul>
+        <div class="example-block">
+          <div class="example-label good">事件选项（机制）</div>
+          <div class="example-code" data-markup="获得[green]{MaxHp}[/green]点最大生命值。受到[red]{Damage}[/red]点伤害。"></div>
+          <div class="example-preview" data-markup="获得[green]{MaxHp}[/green]点最大生命值。受到[red]{Damage}[/red]点伤害。"></div>
+        </div>
+        <div class="example-block">
+          <div class="example-label">叙事片段（可含动画标签）</div>
+          <div class="example-code" data-markup="[b][jitter]锵！锵！！！[/jitter][/b]&#10;&#10;[orange]熔合者[/orange]重重地锤击着它的骨砧。"></div>
+          <div class="example-preview" data-markup="[b][jitter]锵！锵！！！[/jitter][/b]&#10;&#10;[orange]熔合者[/orange]重重地锤击着它的骨砧。"></div>
+        </div>
+      </section>
+
+      <!-- 11 -->
+      <section class="guide-section" id="sec-11">
+        <h2><span class="sec-num">11.</span>常见错误对照</h2>
+        <table class="guide-table">
+          <thead>
+            <tr><th>错误</th><th>说明</th><th>正确做法</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>删除或重命名变量</td>
+              <td><code>{Damage}</code> → 写成「6」</td>
+              <td>保留 <code>{Damage:diff()}</code></td>
+            </tr>
+            <tr>
+              <td>修改变量名</td>
+              <td><code>{Block:diff()}</code> → <code>{格挡:diff()}</code></td>
+              <td>变量名须与程序字段一致，保持英文</td>
+            </tr>
+            <tr>
+              <td>遗漏 gold 标签</td>
+              <td>手牌、弃牌堆等未高亮</td>
+              <td>机制词加 <code>[gold]</code></td>
+            </tr>
+            <tr>
+              <td>卡牌数值误用 [blue]</td>
+              <td><code>[blue]{Damage:diff()}[/blue]</code></td>
+              <td>卡牌用 <code>{Damage:diff()}</code> 即可</td>
+            </tr>
+            <tr>
+              <td>破坏 :show: 分支</td>
+              <td>只写一个分支、删除竖线</td>
+              <td>保留 <code>A|B</code> 完整结构</td>
+            </tr>
+            <tr>
+              <td>JSON 非法转义</td>
+              <td>换行未写成 <code>\n</code></td>
+              <td>在 JSON 字符串内用 <code>\n</code> 表示换行</td>
+            </tr>
+            <tr>
+              <td>术语前后不一</td>
+              <td>同一牌堆「抽牌库」「抽牌堆」混用</td>
+              <td>在范例库中检索，统一用词</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 12 -->
+      <section class="guide-section" id="sec-12">
+        <h2><span class="sec-num">12.</span>相关工具与参考资料</h2>
+        <ul>
+          <li><a href="index.html">杀戮尖塔 · 描述学范例库</a> — 浏览官方全部描述文本、按语法筛选、查看渲染预览与用词统计。</li>
+          <li>描述数据目录：<code>zhs/*.json</code></li>
+          <li>卡牌关键词释义：<code>zhs/card_keywords.json</code></li>
+          <li>机制悬停说明：<code>zhs/static_hover_tips.json</code></li>
+        </ul>
+        <div class="callout">
+          写完描述后，建议在范例库中搜索同类卡牌/遗物，对照句式和术语；勾选「显示标记」检查语法是否写对。
+        </div>
+      </section>
+
+      <footer class="guide-footer">
+        <p>本文档基于官方游戏描述（<code>zhs/</code>）归纳，供玩家与 Mod 创作者撰写文本时参考。</p>
+        <p>版式参考：<a href="https://rules.cfpa.team/" target="_blank" rel="noopener">模组简体中文翻译规范与指南</a></p>
+      </footer>
+    </main>
+  </div>
+
+  <script type="module" src="js/guide.js"></script>
+</body>
+</html>
